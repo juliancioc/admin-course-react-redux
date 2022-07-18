@@ -3,10 +3,12 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { Redirect } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 import * as courseActions from '../../redux/actions/courseActions'
 import * as authorActions from '../../redux/actions/authorActions'
 import CourseList from './CourseList'
+import Spinner from '../common/Spinner'
 
 class CoursesPage extends React.Component {
   state = {
@@ -14,15 +16,24 @@ class CoursesPage extends React.Component {
   }
 
   componentDidMount() {
-    const { actions } = this.props
-
-    actions.loadCourses.loadCourses().catch((error) => {
-      alert('Loading courses failed' + error)
+    const { actions, courses } = this.props
+    if (courses.length === 0) {
+      actions.loadCourses().catch((error) => {
+        toast.error('Loading courses failed ' + error)
+      })
+    }
+    actions.loadAuthors().catch((error) => {
+      toast.error('Loading authors failed ' + error)
     })
+  }
 
-    actions.loadAuthors.loadAuthors().catch((error) => {
-      alert('Loading authors failed' + error)
-    })
+  handleDeleteCourse = async (course) => {
+    try {
+      await this.props.actions.deleteCourse(course)
+      toast.success('Course deleted')
+    } catch (error) {
+      toast.error('Delete failed. ' + error.message, { autoClose: false })
+    }
   }
 
   render() {
@@ -30,13 +41,22 @@ class CoursesPage extends React.Component {
       <>
         {this.state.redirectToAddCoursePage && <Redirect to="/course" />}
         <h2>Courses</h2>
-        <button
-          className="btn btn-primary add-course"
-          onClick={() => this.setState({ redirectToAddCoursePage: true })}
-        >
-          Add Course
-        </button>
-        <CourseList courses={this.props.courses} />
+        {this.props.loading ? (
+          <Spinner />
+        ) : (
+          <>
+            <button
+              className="btn btn-primary add-course"
+              onClick={() => this.setState({ redirectToAddCoursePage: true })}
+            >
+              Add Course
+            </button>
+            <CourseList
+              onDeleteClick={this.handleDeleteCourse}
+              courses={this.props.courses}
+            />
+          </>
+        )}
       </>
     )
   }
@@ -46,6 +66,7 @@ CoursesPage.propTypes = {
   actions: PropTypes.object.isRequired,
   courses: PropTypes.array.isRequired,
   authors: PropTypes.array.isRequired,
+  loading: PropTypes.bool.isRequired,
 }
 
 function mapStateToProps(state) {
@@ -61,14 +82,16 @@ function mapStateToProps(state) {
             }
           }),
     authors: state.authors,
+    loading: state.apiCallsInProgress > 0,
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     actions: {
-      loadCourses: bindActionCreators(courseActions, dispatch),
-      loadAuthors: bindActionCreators(authorActions, dispatch),
+      loadCourses: bindActionCreators(courseActions.loadCourses, dispatch),
+      loadAuthors: bindActionCreators(authorActions.loadAuthors, dispatch),
+      deleteCourse: bindActionCreators(courseActions.deleteCourse, dispatch),
     },
   }
 }
