@@ -5,7 +5,8 @@
     "start": "run-p start:dev start:api",
     "start:dev": "webpack serve --config webpack.config.dev.js --port 3000",
     "prestart:api": "node tools/createMockDb.js",
-    "start:api": "node tools/apiServer.js"
+    "start:api": "node tools/apiServer.js",
+    "test": "jest --watch"
   },
   "dependencies": {
     "bootstrap": "5.0.2",

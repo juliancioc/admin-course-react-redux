@@ -16,15 +16,18 @@ class CoursesPage extends React.Component {
   }
 
   componentDidMount() {
-    const { actions, courses } = this.props
+    const { actions, courses, authors } = this.props
     if (courses.length === 0) {
       actions.loadCourses().catch((error) => {
         toast.error('Loading courses failed ' + error)
       })
     }
-    actions.loadAuthors().catch((error) => {
-      toast.error('Loading authors failed ' + error)
-    })
+
+    if (authors.length === 0) {
+      actions.loadAuthors().catch((error) => {
+        toast.error('Loading authors failed ' + error)
+      })
+    }
   }
 
   handleDeleteCourse = async (course) => {
