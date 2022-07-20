@@ -1,3 +1,4 @@
+/* eslint-disable import/no-named-as-default */
 import React from 'react'
 import { Route, Switch } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
@@ -8,7 +9,7 @@ import AboutPage from './about/AboutPage'
 import Header from './common/Header'
 import PageNotFound from './PageNotFound'
 import CoursesPage from './courses/CoursesPage'
-import ManageCoursePage from './courses/ManageCoursePage'
+import ManageCoursePage from './courses/ManageCoursePage' 
 
 function App() {
   return (
